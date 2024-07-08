@@ -4,6 +4,7 @@ torch._dynamo.config.suppress_errors = True
 
 import runpod
 from unsloth import FastLanguageModel
+import re
 
 alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
@@ -16,7 +17,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 ### Response:<bor>
 """
 
-max_seq_length = 4092
+max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="ozzyable/log-summerizer-tinyllama",
@@ -35,17 +36,28 @@ def summarize(transactions: list):
                 transaction,
                 ""
             ) for transaction in transactions
-        ], return_tensors="pt").to("cuda")
+        ],
+        padding=True,
+        truncation=True,
+        return_tensors="pt"
+    ).to("cuda")
 
     outputs = model.generate(**inputs, max_new_tokens=1024, use_cache=True)
     results = tokenizer.batch_decode(outputs)
-    output = []
+    cleaned_output = []
 
-    for result in results:
-        result = result[result.find("<bor>") + 5:result.rfind("<eos>")].strip()
-        output.append(result)
+    pattern = re.compile(r"</?s>|<unk>")
+
+    for result in outputs:
+        start_idx = result.find("<bor>")
+        end_idx = result.rfind("<eos>")
+        if start_idx != -1 and end_idx != -1:
+            result = result[start_idx + 5:end_idx].strip()
+        
+        cleaned_result = pattern.sub('', result).strip()
+        cleaned_output.append(cleaned_result)
     
-    return output
+    return cleaned_output
 
 
 def process_input(input):
