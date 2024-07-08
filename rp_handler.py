@@ -44,20 +44,9 @@ def summarize(transactions: list):
 
     outputs = model.generate(**inputs, max_new_tokens=1024, use_cache=True)
     results = tokenizer.batch_decode(outputs)
-    cleaned_output = []
-
-    pattern = re.compile(r"</?s>|<unk>")
-
-    for result in results:
-        start_idx = result.find("<bor>")
-        end_idx = result.rfind("<eos>")
-        if start_idx != -1 and end_idx != -1:
-            result = result[start_idx + 5:end_idx].strip()
-        
-        cleaned_result = pattern.sub('', result).strip()
-        cleaned_output.append(cleaned_result)
     
-    return cleaned_output
+    result = result[result.find("<bor>") + 5:result.rfind("<eos>")].strip()
+    return result
 
 
 def process_input(input):
