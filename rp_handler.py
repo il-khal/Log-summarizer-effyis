@@ -20,7 +20,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="ozzyable/log-summerizer-tinyllama",
+    model_name="ozzyable/log-summerizer-gemma-2b-it-4bit",
     max_seq_length=max_seq_length,
     dtype=None,
     load_in_4bit=False
