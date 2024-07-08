@@ -48,7 +48,7 @@ def summarize(transactions: list):
 
     pattern = re.compile(r"</?s>|<unk>")
 
-    for result in outputs:
+    for result in results:
         start_idx = result.find("<bor>")
         end_idx = result.rfind("<eos>")
         if start_idx != -1 and end_idx != -1:
