@@ -45,7 +45,7 @@ def summarize(transactions: list):
     outputs = model.generate(**inputs, max_new_tokens=1024, use_cache=True)
     results = tokenizer.batch_decode(outputs)
     
-    result = result[result.find("<bor>") + 5:result.rfind("<eos>")].strip()
+    result = result[result.find("<bor>") + 5:result.rfind("</s>")].strip()
     return result
 
 
