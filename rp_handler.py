@@ -46,9 +46,9 @@ def summarize(transactions: list):
     
     for transaction in results:
         substring = "Response:"
-        start_index = output.find(substring) + len(substring)
+        start_index = transaction.find(substring) + len(substring)
 
-        formatted_output = output[start_index:]
+        formatted_output = transaction[start_index:]
         s.append(formatted_output)
 
     return s
