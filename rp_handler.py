@@ -13,13 +13,13 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 ### Input:
 {}
 
-### Response:<bor>
+### Response:
 """
 
 max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="ozzyable/tinyllama-alt-data",
+    model_name="ozzyable/log-summ-gemma-v2",
     max_seq_length=max_seq_length,
     dtype=None,
     load_in_4bit=False
@@ -45,8 +45,8 @@ def summarize(transactions: list):
     s = []
     
     for transaction in results:
-        substring = "Response:"
-        start_index = transaction.find(substring) + len(substring)
+        substring = "{'transaction_channel': '"
+        start_index = transaction.find(substring)
 
         formatted_output = transaction[start_index:]
         s.append(formatted_output)
