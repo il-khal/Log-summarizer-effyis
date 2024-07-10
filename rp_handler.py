@@ -4,6 +4,7 @@ torch._dynamo.config.suppress_errors = True
 
 import runpod
 from unsloth import FastLanguageModel
+import unicodedata
 
 alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
@@ -19,7 +20,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="ozzyable/log-summ-gemma-v2",
+    model_name="ozzyable/log-summ-tinyllama-v2",
     max_seq_length=max_seq_length,
     dtype=None,
     load_in_4bit=False
@@ -31,8 +32,8 @@ def summarize(transactions: list):
     inputs = tokenizer(
         [
             alpaca_prompt.format(
-                "you are a transaction interpreter , you receive transactions that are writen for the banking context & you extract the transaction category: other, financial, pension, reimbursement and salary", # instruction
-                transaction,
+                "you are a transaction interpreter , you receive transactions that are writen for the banking context & you extract valuable data them in json format: {'transaction_channel': (Transfer, Online Payement, Card Payement, Bank fee, Deposit), 'other_party_name': name of the sender or receiver, 'info': motif or reason of the transaction, if there is no motif just leave it blank}", # instruction
+                unicodedata.normalize('NFKD', transaction),
                 ""
             ) for transaction in transactions
         ],
