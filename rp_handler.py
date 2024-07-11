@@ -1,10 +1,9 @@
 import torch._dynamo
-torch._dynamo.config.suppress_errors = True
+torch._dynamo.config.suppress_errors = True # suppressing errors : safe  mesure for unexpected torch errors
 
 
 import runpod
 from unsloth import FastLanguageModel
-import unicodedata
 
 alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
@@ -20,6 +19,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
+    # othermodels are at https://huggingface.co/ozzyable
     model_name="ozzyable/log-summ-tinyllama-v2",
     max_seq_length=max_seq_length,
     dtype=None,
@@ -33,7 +33,7 @@ def summarize(transactions: list):
         [
             alpaca_prompt.format(
                 "you are a transaction interpreter , you receive transactions that are writen for the banking context & you extract valuable data them in json format: {'transaction_channel': (Transfer, Online Payement, Card Payement, Bank fee, Deposit), 'other_party_name': name of the sender or receiver, 'info': motif or reason of the transaction, if there is no motif just leave it blank}", # instruction
-                unicodedata.normalize('NFKD', transaction),
+                transaction,
                 ""
             ) for transaction in transactions
         ],
@@ -45,6 +45,7 @@ def summarize(transactions: list):
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     s = []
     
+    # extracting the response from the results
     for transaction in results:
         substring = "{'transaction_channel': '"
         start_index = transaction.find(substring)
@@ -62,6 +63,8 @@ def process_input(input):
     return results
 
 def handler(event):
+    # "event" is the input the pod receives
+    # returns a list of strings, each string contains the unparsed json for each transaction
     return process_input(event['input'])
 
 if __name__ == '__main__':
