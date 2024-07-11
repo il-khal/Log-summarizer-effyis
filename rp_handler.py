@@ -20,45 +20,43 @@ max_seq_length = 2048
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     # othermodels are at https://huggingface.co/ozzyable
-    model_name="ozzyable/log-summ-tinyllama-v2",
+    model_name="ozzyable/log-summerizer-gemma-2b-it-4bit",
     max_seq_length=max_seq_length,
     dtype=None,
-    load_in_4bit=False
+    load_in_4bit=True
     )
 
 FastLanguageModel.for_inference(model)
 
-def summarize(transactions: list):
+def summarize(transaction: str):
     inputs = tokenizer(
         [
             alpaca_prompt.format(
                 "you are a transaction interpreter , you receive transactions that are writen for the banking context & you extract valuable data them in json format: {'transaction_channel': (Transfer, Online Payement, Card Payement, Bank fee, Deposit), 'other_party_name': name of the sender or receiver, 'info': motif or reason of the transaction, if there is no motif just leave it blank}", # instruction
                 transaction,
                 ""
-            ) for transaction in transactions
+            )
         ],
         padding=True,
         return_tensors="pt"
     ).to("cuda")
 
     outputs = model.generate(**inputs, max_new_tokens=2048, use_cache=True)
-    results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    s = []
+    result = tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
     
-    # extracting the response from the results
-    for transaction in results:
-        substring = "{'transaction_channel': '"
-        start_index = transaction.find(substring)
+    substring = "{'transaction_channel': '"
+    start_index = result.find(substring)
 
-        formatted_output = transaction[start_index:]
-        s.append(formatted_output)
+    formatted_output = result[start_index:]
 
-    return s
+    return formatted_output
 
 
 def process_input(input):
     transactions = input.get('transaction', [])
-    results = summarize(transactions)
+    results = []
+    for transaction in transactions:
+        results.append(summarize(transaction))
 
     return results
 
