@@ -19,14 +19,11 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="ozzyable/log-summerizer-tinyllama",
     max_seq_length=max_seq_length,
     dtype=None,
-    load_in_4bit=True
+    load_in_4bit=False
 )
 
 model.save_pretrained("log-summerizer-tinyllama")
 tokenizer.save_pretrained("log-summerizer-tinyllamas")
-
-model.save_pretrained("ozzyable/log-summerizer-tinyllama")
-tokenizer.save_pretrained("ozzyable/log-summerizer-tinylp")
 
 FastLanguageModel.for_inference(model)
 
