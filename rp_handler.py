@@ -22,9 +22,6 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     load_in_4bit=False
 )
 
-model.save_pretrained("log-summerizer-tinyllama")
-tokenizer.save_pretrained("log-summerizer-tinyllamas")
-
 FastLanguageModel.for_inference(model)
 
 async def summarize(transaction: str):
