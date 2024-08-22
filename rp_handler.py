@@ -27,12 +27,12 @@ tokenizer.save_pretrained("ozzyable/log-summerizer-gemma-2b-it-4bit")
 
 FastLanguageModel.for_inference(model)
 
-async def summarize(transaction: str):
+async def summarize(transaction: dict):
     inputs = tokenizer(
         [
             alpaca_prompt.format(
                 "you are a transaction interpreter, you receive transactions that are written for the banking context & you extract valuable data from them in JSON format: {'transaction_channel': (Transfer, Online Payment, Card Payment, Bank fee, Deposit), 'other_party_name': name of the sender or receiver, 'info': motif or reason of the transaction, if there is no motif just leave it blank}",
-                transaction,
+                transaction.get("description"),
                 ""
             )
         ], return_tensors="pt").to("cuda")
@@ -41,7 +41,7 @@ async def summarize(transaction: str):
     result = tokenizer.batch_decode(outputs)[0]
 
     result = result[result.find("<bor>") + 5:result.rfind("<eos>")].strip()
-    return result
+    return {'id': transaction.get('id'), 'description': transaction.get('description')}
 
 
 async def process_input(input):
