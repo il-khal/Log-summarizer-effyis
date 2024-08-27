@@ -35,7 +35,8 @@ def summarize(transactions):
     
     inputs = tokenizer(
         formatted_inputs,
-        return_tensors="pt"
+        return_tensors="pt",
+        padding=True, truncation=True
     ).to("cuda")
 
     outputs = model.generate(**inputs, max_new_tokens=1024, use_cache=True)
