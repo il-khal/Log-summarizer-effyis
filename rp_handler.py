@@ -22,9 +22,6 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     load_in_4bit=True
 )
 
-model.save_pretrained("ozzyable/log-summerizer-gemma-2b-it-4bit")
-tokenizer.save_pretrained("ozzyable/log-summerizer-gemma-2b-it-4bit")
-
 FastLanguageModel.for_inference(model)
 
 async def summarize(transaction: dict):
@@ -41,7 +38,7 @@ async def summarize(transaction: dict):
     result = tokenizer.batch_decode(outputs)[0]
 
     result = result[result.find("<bor>") + 5:result.rfind("<eos>")].strip()
-    return {'id': transaction.get('id'), 'description': transaction.get('description')}
+    return {'id': transaction.get('id'), 'summary': result}
 
 
 async def process_input(input):
