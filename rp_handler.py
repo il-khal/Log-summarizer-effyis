@@ -40,10 +40,10 @@ def summarize(transactions):
     ).to("cuda")
 
     outputs = model.generate(**inputs, max_new_tokens=1024, use_cache=True)
-    result = tokenizer.batch_decode(outputs[0], skip_special_tokens=True)
+    result = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
     for i in range(len(transactions)):
-        transactions[i]['summary'] = result[i][result.find("<bor>") + 5:].strip()
+        transactions[i]['summary'] = result[i][result[i].find("<bor>") + 5:].strip()
 
     return transactions
 
